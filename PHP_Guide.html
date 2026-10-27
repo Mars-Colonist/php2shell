@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHP2Shell Study Guide & Lab Reference</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+    <div class="max-w-4xl mx-auto px-6 py-12">
+        <header class="mb-8 border-b border-slate-800 pb-6">
+            <div class="flex items-center space-x-3 mb-2">
+                <span class="bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-mono uppercase px-2.5 py-1 rounded-full">Security Research Guide</span>
+                <span class="text-slate-500 text-sm">CVE-2026-109618 / CVE-2026-109619</span>
+            </div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-white">PHP2Shell Anatomy & Local Lab Setup</h1>
+            <p class="text-slate-400 mt-2">Comprehensive reference for understanding runtime-level vulnerabilities and configuring an isolated sandbox environment.</p>
+        </header>
+
+        <main class="space-y-8">
+            <section class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-white mb-3">1. Vulnerability Overview & Scope</h2>
+                <p class="text-slate-300 mb-4">
+                    Unlike application-layer issues (such as SQLi or XSS found in traditional labs like Mutillidae), PHP2Shell is a <strong>core memory-corruption flaw</strong> residing within the C source code of the PHP interpreter itself.
+                </p>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700">
+                        <h3 class="font-semibold text-cyan-400 mb-1">Target Endpoints</h3>
+                        <p class="text-sm text-slate-300">Any valid PHP endpoint (e.g., <code class="text-cyan-300">/index.php</code>, <code class="text-cyan-300">/test.php</code>) can trigger the bug because request handling happens during core HTTP parsing before application logic executes.</p>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700">
+                        <h3 class="font-semibold text-cyan-400 mb-1">Vulnerable Versions</h3>
+                        <p class="text-sm text-slate-300">All versions from PHP 5.4 up to 8.5.11. Patches are available in PHP 8.5.12, 8.4.27, 8.3.36, and 8.2.35.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-white mb-3">2. Rapid Docker Lab Deployment</h2>
+                <p class="text-slate-300 mb-4">
+                    To evaluate proof-of-concept scripts safely, spin up a pre-patch vulnerable container locally using the official PHP Apache images:
+                </p>
+                <div class="bg-slate-950 rounded-lg p-4 font-mono text-sm text-emerald-400 overflow-x-auto border border-slate-800 mb-4">
+                    docker run -d --name php2shell-lab -p 8080:80 php:8.4.26-apache
+                </div>
+                <h3 class="font-semibold text-white mb-2">Command Breakdown:</h3>
+                <ul class="list-disc list-inside space-y-1 text-sm text-slate-300 mb-4">
+                    <li><strong class="text-slate-200">-d:</strong> Runs the container in background (detached) mode.</li>
+                    <li><strong class="text-slate-200">--name php2shell-lab:</strong> Assigns an easy reference tag to the container.</li>
+                    <li><strong class="text-slate-200">-p 8080:80:</strong> Maps host port 8080 to container port 80 (<code class="text-cyan-300">http://localhost:8080</code>).</li>
+                    <li><strong class="text-slate-200">php:8.4.26-apache:</strong> Pulls a target unpatched version immediately prior to security advisories.</li>
+                </ul>
+            </section>
+
+            <section class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-white mb-3">3. Verification & Teardown Checklist</h2>
+                <div class="space-y-4 text-sm text-slate-300">
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-cyan-500/10 text-cyan-400 px-2.5 py-1 rounded font-mono font-bold">1</div>
+                        <div>
+                            <strong class="text-white block mb-0.5">Verify Runtime Version:</strong>
+                            <code class="text-cyan-300 bg-slate-900 px-2 py-0.5 rounded">docker exec -it php2shell-lab php -v</code>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-cyan-500/10 text-cyan-400 px-2.5 py-1 rounded font-mono font-bold">2</div>
+                        <div>
+                            <strong class="text-white block mb-0.5">Ensure Network Isolation:</strong>
+                            <p class="text-slate-400">Confirm the container is bound strictly to localhost and firewalled from public exposure.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-cyan-500/10 text-cyan-400 px-2.5 py-1 rounded font-mono font-bold">3</div>
+                        <div>
+                            <strong class="text-white block mb-0.5">Cleanup Lab:</strong>
+                            <code class="text-cyan-300 bg-slate-900 px-2 py-0.5 rounded">docker stop php2shell-lab && docker rm php2shell-lab</code>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="mt-12 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
+            PHP2Shell Study Guide — Generated for Authorized Security Research & Educational Reference.
+        </footer>
+    </div>
+</body>
+</html>
